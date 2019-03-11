@@ -1,0 +1,16 @@
+package com.alibaba.csp.sentinel.dashboard.rule.zookeeper.impl;
+
+import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
+import com.alibaba.csp.sentinel.dashboard.rule.zookeeper.AbstractZookeeperRuleProvider;
+import org.springframework.stereotype.Service;
+
+/**
+ * @Description Zookeeper规则查询类
+ * @author: cc
+ * @Date: 2019-03-04
+ */
+
+@Service("flowRuleZookeeperProvider")
+public class FlowRuleZookeeperProvider extends AbstractZookeeperRuleProvider<FlowRuleEntity> {
+
+}
