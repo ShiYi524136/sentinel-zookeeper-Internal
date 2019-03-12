@@ -91,6 +91,7 @@ public class SentinelConfiguration implements InitializingBean {
         public static final String SYSTEM_RULE_PATH = "/sentinel/rules/%s/system";
         public static final String configDataId = "/sentinel/rules/%s/cluster-client-config";
         public static final String clusterMapDataId = "/sentinel/rules/%s/cluster-map";
+        private static final String SEPARATOR = "@";
         /*public static final String FLOW_POSTFIX = "/sentinel/rules/%s/flow-rules";
         public static final String PARAM_FLOW_POSTFIX = "/sentinel/rules/%s/param-rules";*/
 
@@ -226,7 +227,24 @@ public class SentinelConfiguration implements InitializingBean {
             // Note: this may not work well for container-based env.
             return HostNameUtil.getIp() + SEPARATOR + TransportConfig.getRuntimePort();
         }
+    }
 
-        private static final String SEPARATOR = "@";
+    /**
+     * 通过zk框架curator来自动选举集群流控的TokenServer
+     */
+    @Configuration
+    @ConditionalOnProperty(name = "sentinel.zookeeper.enable", havingValue = "true")
+    public class TokenServerAutoVoteConfiguration implements InitializingBean {
+
+        /**
+         * TokenServer自动选举使用的zk节点路径
+         */
+        public static final String TokenServerVotePath = "/sentinel/vote/%s";
+
+        @Override
+        public void afterPropertiesSet() throws Exception {
+            String zkPath = String.format(TokenServerVotePath, AppNameUtil.getAppName());
+
+        }
     }
 }
