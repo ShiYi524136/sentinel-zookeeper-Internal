@@ -82,7 +82,7 @@ public class AuthorityRuleController {
         }
         try {
             //List<AuthorityRuleEntity> rules = sentinelApiClient.fetchAuthorityRulesOfMachine(app, ip, port);
-            List<AuthorityRuleEntity> rules = ruleProvider.getRules(app);
+            List<AuthorityRuleEntity> rules = ruleProvider.getRules(app, ip, port,app);
             rules = repository.saveAll(rules);
             return Result.ofSuccess(rules);
         } catch (Throwable throwable) {

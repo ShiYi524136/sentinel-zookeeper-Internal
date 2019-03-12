@@ -31,7 +31,8 @@ public abstract class AbstractZookeeperRulePublisher<T extends RuleEntity> imple
             return;
         }
         Stat stat = getClient().checkExists().forPath(reallyPath);
-        String rule = ruleEntityEncoder().convert(rules);
+        //String rule = ruleEntityEncoder().convert(rules);
+        String rule = ruleEntityEncoder(rules);
         if (stat == null) {
             getClient().create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(reallyPath, rule.getBytes());
             return;
@@ -50,6 +51,8 @@ public abstract class AbstractZookeeperRulePublisher<T extends RuleEntity> imple
     private Converter<List<T>, String> ruleEntityEncoder() {
         return JSON::toJSONString;
     }
+
+    protected abstract String ruleEntityEncoder(List<T> rules);
 
     private Class<T> getEntityRealClassName() {
         ParameterizedType pt = (ParameterizedType) this.getClass().getGenericSuperclass();

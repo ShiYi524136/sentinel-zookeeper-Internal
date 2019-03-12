@@ -80,7 +80,7 @@ public class FlowControllerV1 {
         }
         try {
             //List<FlowRuleEntity> rules = sentinelApiClient.fetchFlowRuleOfMachine(app, ip, port);
-            List<FlowRuleEntity> rules = ruleProvider.getRules(app);
+            List<FlowRuleEntity> rules = ruleProvider.getRules(app, ip, port,app);
             rules = repository.saveAll(rules);
             return Result.ofSuccess(rules);
         } catch (Throwable throwable) {

@@ -26,4 +26,8 @@ import java.util.List;
 public interface DynamicRuleProvider<T extends RuleEntity> {
 
     List<T> getRules(String appName) throws Exception;
+
+    List<T> getRules(String app, String ip, int port, String appName) throws Exception;
+
+
 }

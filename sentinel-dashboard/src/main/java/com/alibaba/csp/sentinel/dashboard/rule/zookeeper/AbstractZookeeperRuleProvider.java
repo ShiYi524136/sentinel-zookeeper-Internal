@@ -24,9 +24,7 @@ public abstract class AbstractZookeeperRuleProvider<T extends RuleEntity> implem
 
     public static final String PATH = "/sentinel/rules/%s/%s";
 
-
-    @Override
-    public List<T> getRules(String appName) throws Exception {
+    public List<T> getRules(String app, String ip, int port, String appName) throws Exception {
         byte[] bytes = getClient().getData().forPath(String.format(getZookeeperPath(), appName, getRuleName()));
         if (null == bytes || bytes.length == 0) {
             return Collections.emptyList();
@@ -36,8 +34,14 @@ public abstract class AbstractZookeeperRuleProvider<T extends RuleEntity> implem
         if (StringUtil.isEmpty(rules)) {
             return Collections.emptyList();
         }
-        List list = getRuleEntityDecoders().convert(rules);
+        //List list = getRuleEntityDecoders().convert(rules);
+        List list = getRuleEntityDecoders(app, ip, port, rules);
         return list;
+    }
+
+    @Override
+    public List<T> getRules(String appName) throws Exception {
+        throw new RuntimeException("暂不支持的方法");
     }
 
     private String getZookeeperPath() {
@@ -56,6 +60,8 @@ public abstract class AbstractZookeeperRuleProvider<T extends RuleEntity> implem
     private Converter<String, List<T>> getRuleEntityDecoders() {
         return s -> JSON.parseArray(s, getEntityRealClassName());
     }
+
+    protected abstract List<T> getRuleEntityDecoders(String app, String ip, int port, String rules);
 
     private String getRuleName() {
         String entityName = getEntityRealClassName().getSimpleName();

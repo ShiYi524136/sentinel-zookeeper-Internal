@@ -72,7 +72,7 @@ public class SystemController {
         }
         try {
             //List<SystemRuleEntity> rules = sentinelApiClient.fetchSystemRuleOfMachine(app, ip, port);
-            List<SystemRuleEntity> rules = ruleProvider.getRules(app);
+            List<SystemRuleEntity> rules = ruleProvider.getRules(app, ip, port,app);
             rules = repository.saveAll(rules);
             return Result.ofSuccess(rules);
         } catch (Throwable throwable) {
