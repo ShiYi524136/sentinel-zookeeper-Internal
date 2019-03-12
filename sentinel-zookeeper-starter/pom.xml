@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.bsb.atp</groupId>
+    <groupId>com.cc.sentinel</groupId>
     <artifactId>sentinel-zookeeper-starter</artifactId>
     <version>1.4.2-cc-jdk8</version>
 
@@ -23,6 +23,7 @@
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
         <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.alibaba.csp</groupId>

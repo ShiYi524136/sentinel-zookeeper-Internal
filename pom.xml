@@ -11,6 +11,7 @@
     <name>${project.artifactId}</name>
     <description>The parent project of Sentinel</description>
     <url>https://github.com/alibaba/Sentinel</url>
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -18,22 +19,13 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
     <scm>
         <url>https://github.com/alibaba/Sentinel</url>
         <connection>scm:git:https://github.com/alibaba/Sentinel.git</connection>
         <developerConnection>scm:git:https://github.com/alibaba/Sentinel.git</developerConnection>
     </scm>
-    <developers>
-        <developer>
-            <name>The Sentinel Project Contributors</name>
-            <email>sentinel-dev@linux.alibaba.com</email>
-            <url>https://github.com/alibaba/Sentinel</url>
-        </developer>
-    </developers>
-    <organization>
-        <name>Alibaba Group</name>
-        <url>https://github.com/alibaba</url>
-    </organization>
+
     <issueManagement>
         <system>github</system>
         <url>https://github.com/alibaba/Sentinel/issues</url>
