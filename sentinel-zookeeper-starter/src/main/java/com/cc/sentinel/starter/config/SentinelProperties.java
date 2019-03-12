@@ -1,4 +1,4 @@
-package com.bsb.sentinel.starter.config;
+package com.cc.sentinel.starter.config;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * yml格式
  * sentinel:
  *   application:
+ *     enable: true
  *     name: sentinel-consumer
  *     port: 8719
  *     dashboard: localhost:8181
@@ -42,6 +43,11 @@ public class SentinelProperties {
     @Getter
     @Setter
     public static class ApplicationProperties {
+
+        /**
+         * 是否开启
+         */
+        private boolean enable;
 
         /**
          * 客户端的 port，用于上报相关信息（默认为 8719）, 同台机器上由多台时，需要指定不同的端口

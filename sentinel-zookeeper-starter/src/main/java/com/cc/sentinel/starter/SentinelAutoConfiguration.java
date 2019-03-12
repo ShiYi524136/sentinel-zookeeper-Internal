@@ -1,6 +1,6 @@
-package com.bsb.sentinel.starter;
+package com.cc.sentinel.starter;
 
-import com.bsb.sentinel.starter.config.SentinelConfiguration;
+import com.cc.sentinel.starter.config.SentinelConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 

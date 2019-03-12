@@ -1,4 +1,4 @@
-package com.bsb.sentinel.starter.aspect;
+package com.cc.sentinel.starter.aspect;
 
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.EntryType;

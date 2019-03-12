@@ -1,4 +1,4 @@
-package com.bsb.sentinel.starter.config;
+package com.cc.sentinel.starter.config;
 
 import com.alibaba.csp.sentinel.annotation.aspectj.SentinelResourceAspect;
 import com.alibaba.csp.sentinel.cluster.ClusterStateManager;
@@ -28,7 +28,7 @@ import com.alibaba.csp.sentinel.util.HostNameUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.bsb.sentinel.starter.entity.ClusterGroupEntity;
+import com.cc.sentinel.starter.entity.ClusterGroupEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 import java.util.List;
 import java.util.Objects;
@@ -51,14 +50,11 @@ import java.util.Optional;
 @Configuration
 @EnableConfigurationProperties(SentinelProperties.class)
 @Slf4j
+@ConditionalOnProperty(name = "sentinel.application.enable", havingValue = "true")
 public class SentinelConfiguration implements InitializingBean {
 
     @Autowired
     private SentinelProperties sentinelProperties;
-
-    @Autowired
-    private Environment env;
-
 
     /**
      * sentinel注解切面
@@ -93,14 +89,14 @@ public class SentinelConfiguration implements InitializingBean {
         public static final String DEGRADE_RULE_PATH = "/sentinel/rules/%s/degrade";
         public static final String PARAM_FLOW_RULE_PATH = "/sentinel/rules/%s/paramflow";
         public static final String SYSTEM_RULE_PATH = "/sentinel/rules/%s/system";
-        public static final String configDataId =  "/sentinel/rules/%s/cluster-client-config";
+        public static final String configDataId = "/sentinel/rules/%s/cluster-client-config";
         public static final String clusterMapDataId = "/sentinel/rules/%s/cluster-map";
         /*public static final String FLOW_POSTFIX = "/sentinel/rules/%s/flow-rules";
         public static final String PARAM_FLOW_POSTFIX = "/sentinel/rules/%s/param-rules";*/
 
         @Override
         public void afterPropertiesSet() {
-            log.info("当前系统名称为{}",AppNameUtil.getAppName());
+            log.info("当前系统名称为{}", AppNameUtil.getAppName());
             ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new ZookeeperDataSource<>(sentinelProperties.getZookeeper().getAddress(),
                     String.format(FLOW_RULE_PATH, AppNameUtil.getAppName()),
                     source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {
@@ -132,12 +128,14 @@ public class SentinelConfiguration implements InitializingBean {
             SystemRuleManager.register2Property(systemRuleDataSource.getProperty());
 
             ReadableDataSource<String, ClusterClientConfig> clientConfigDs = new ZookeeperDataSource<>(sentinelProperties.getZookeeper().getAddress(),
-                    String.format(configDataId, AppNameUtil.getAppName()), source -> JSON.parseObject(source, new TypeReference<ClusterClientConfig>() {}));
+                    String.format(configDataId, AppNameUtil.getAppName()), source -> JSON.parseObject(source, new TypeReference<ClusterClientConfig>() {
+            }));
             ClusterClientConfigManager.registerClientConfigProperty(clientConfigDs.getProperty());
 
             ReadableDataSource<String, ClusterClientAssignConfig> clientAssignDs = new ZookeeperDataSource<>(sentinelProperties.getZookeeper().getAddress(),
                     String.format(clusterMapDataId, AppNameUtil.getAppName()), source -> {
-                List<ClusterGroupEntity> groupList = JSON.parseObject(source, new TypeReference<List<ClusterGroupEntity>>() {});
+                List<ClusterGroupEntity> groupList = JSON.parseObject(source, new TypeReference<List<ClusterGroupEntity>>() {
+                });
                 return Optional.ofNullable(groupList)
                         .flatMap(this::extractClientAssignment)
                         .orElse(null);
@@ -145,24 +143,26 @@ public class SentinelConfiguration implements InitializingBean {
             ClusterClientConfigManager.registerServerAssignProperty(clientAssignDs.getProperty());
 
 
-
             ClusterFlowRuleManager.setPropertySupplier(namespace -> {
                 ReadableDataSource<String, List<FlowRule>> ds = new ZookeeperDataSource<>(sentinelProperties.getZookeeper().getAddress(),
-                        String.format(FLOW_RULE_PATH, AppNameUtil.getAppName()), source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {}));
+                        String.format(FLOW_RULE_PATH, AppNameUtil.getAppName()), source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {
+                }));
                 return ds.getProperty();
             });
 
             // Register cluster parameter flow rule property supplier which creates data source by namespace.
             ClusterParamFlowRuleManager.setPropertySupplier(namespace -> {
                 ReadableDataSource<String, List<ParamFlowRule>> ds = new ZookeeperDataSource<>(sentinelProperties.getZookeeper().getAddress(),
-                        String.format(PARAM_FLOW_RULE_PATH, AppNameUtil.getAppName()), source -> JSON.parseObject(source, new TypeReference<List<ParamFlowRule>>() {}));
+                        String.format(PARAM_FLOW_RULE_PATH, AppNameUtil.getAppName()), source -> JSON.parseObject(source, new TypeReference<List<ParamFlowRule>>() {
+                }));
                 return ds.getProperty();
             });
 
 
             ReadableDataSource<String, ServerTransportConfig> serverTransportDs = new ZookeeperDataSource<>(sentinelProperties.getZookeeper().getAddress(),
                     String.format(clusterMapDataId, AppNameUtil.getAppName()), source -> {
-                List<ClusterGroupEntity> groupList = JSON.parseObject(source, new TypeReference<List<ClusterGroupEntity>>() {});
+                List<ClusterGroupEntity> groupList = JSON.parseObject(source, new TypeReference<List<ClusterGroupEntity>>() {
+                });
                 return Optional.ofNullable(groupList)
                         .flatMap(this::extractServerTransportConfig)
                         .orElse(null);
@@ -172,7 +172,8 @@ public class SentinelConfiguration implements InitializingBean {
 
             ReadableDataSource<String, Integer> clusterModeDs = new ZookeeperDataSource<>(sentinelProperties.getZookeeper().getAddress(),
                     String.format(clusterMapDataId, AppNameUtil.getAppName()), source -> {
-                List<ClusterGroupEntity> groupList = JSON.parseObject(source, new TypeReference<List<ClusterGroupEntity>>() {});
+                List<ClusterGroupEntity> groupList = JSON.parseObject(source, new TypeReference<List<ClusterGroupEntity>>() {
+                });
                 return Optional.ofNullable(groupList)
                         .map(this::extractMode)
                         .orElse(ClusterStateManager.CLUSTER_NOT_STARTED);
@@ -225,6 +226,7 @@ public class SentinelConfiguration implements InitializingBean {
             // Note: this may not work well for container-based env.
             return HostNameUtil.getIp() + SEPARATOR + TransportConfig.getRuntimePort();
         }
+
         private static final String SEPARATOR = "@";
     }
 }
