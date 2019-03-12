@@ -91,7 +91,7 @@ public class SentinelConfiguration implements InitializingBean {
         public static final String FLOW_RULE_PATH = "/sentinel/rules/%s/flow";
         public static final String AUTHORITY_RULE_PATH = "/sentinel/rules/%s/authority";
         public static final String DEGRADE_RULE_PATH = "/sentinel/rules/%s/degrade";
-        public static final String PARAM_FLOW_RULE_PATH = "/sentinel/rules/com.bsb.atp.AtpApplication/paramflow";
+        public static final String PARAM_FLOW_RULE_PATH = "/sentinel/rules/%s/paramflow";
         public static final String SYSTEM_RULE_PATH = "/sentinel/rules/%s/system";
         public static final String configDataId =  "/sentinel/rules/%s/cluster-client-config";
         public static final String clusterMapDataId = "/sentinel/rules/%s/cluster-map";
