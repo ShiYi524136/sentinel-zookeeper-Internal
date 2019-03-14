@@ -7,18 +7,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * sentinel配置类（该配置需要配置在引用此包的配置文件中）
  * for example
- *
+ * <p>
  * yml格式
  * sentinel:
- *   application:
- *     enable: true
- *     name: sentinel-consumer
- *     port: 8719
- *     dashboard: localhost:8181
- *   zookeeper:
- *     enable: true
- *     address: localhost:2181
- *
+ *  application:
+ *  enable: true
+ *  name: sentinel-consumer
+ *  port: 8719
+ * dashboard: localhost:8181
+ *  zookeeper:
+ *  enable: true
+ *  address: localhost:2181
+ *  autoVoteEnable: true
  * @author: cc
  * @Date: 2019-03-07
  */
@@ -45,7 +45,7 @@ public class SentinelProperties {
     public static class ApplicationProperties {
 
         /**
-         * 是否开启
+         * 是否开启sentinel功能
          */
         private boolean enable;
 
@@ -89,8 +89,13 @@ public class SentinelProperties {
         private int maxRetries = 3;
 
         /**
-         * 是否开启
+         * 是否开启zk作为数据源
          */
         private boolean enable;
+
+        /**
+         * 是否开启集群模式的自动选举
+         */
+        private boolean autoVoteEnable;
     }
 }
