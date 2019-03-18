@@ -1,61 +1,137 @@
-package com.cc.sentinel.starter.config;
+# 目录
+- 介绍
+- 问题
+- 控制台改造
+- 客户端改造
+- 自动选举
+# 介绍
+[sentinel-github介绍](https://github.com/alibaba/Sentinel/wiki/介绍)
+# 问题
+- sentinel开源版本原始模式，如果不做任何修改，Dashboard的推送规则方式是通过API将规则推送至客户端并直接更新到内存中，这就将导致重启应用规则就失效需要重新添加规则
+- 集群流控原始版本如果不做任何修改，需要到控制台手动分配TokenServer和TokenClient，无法自动选举和宕机自动重新选举
+- 如何低侵入性方便简洁的使用sentinel
+# 控制台改造
+原始模式
 
-import com.alibaba.csp.sentinel.annotation.aspectj.SentinelResourceAspect;
-import com.alibaba.csp.sentinel.cluster.ClusterStateManager;
-import com.alibaba.csp.sentinel.cluster.client.config.ClusterClientAssignConfig;
-import com.alibaba.csp.sentinel.cluster.client.config.ClusterClientConfig;
-import com.alibaba.csp.sentinel.cluster.client.config.ClusterClientConfigManager;
-import com.alibaba.csp.sentinel.cluster.flow.rule.ClusterFlowRuleManager;
-import com.alibaba.csp.sentinel.cluster.flow.rule.ClusterParamFlowRuleManager;
-import com.alibaba.csp.sentinel.cluster.server.config.ClusterServerConfigManager;
-import com.alibaba.csp.sentinel.cluster.server.config.ServerTransportConfig;
-import com.alibaba.csp.sentinel.command.CommandHandler;
-import com.alibaba.csp.sentinel.command.CommandRequest;
-import com.alibaba.csp.sentinel.command.entity.ClusterClientStateEntity;
-import com.alibaba.csp.sentinel.config.SentinelConfig;
-import com.alibaba.csp.sentinel.datasource.ReadableDataSource;
-import com.alibaba.csp.sentinel.datasource.zookeeper.ZookeeperDataSource;
-import com.alibaba.csp.sentinel.slots.block.authority.AuthorityRule;
-import com.alibaba.csp.sentinel.slots.block.authority.AuthorityRuleManager;
-import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
-import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
-import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
-import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
-import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRule;
-import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRuleManager;
-import com.alibaba.csp.sentinel.slots.system.SystemRule;
-import com.alibaba.csp.sentinel.slots.system.SystemRuleManager;
-import com.alibaba.csp.sentinel.transport.command.SimpleHttpCommandCenter;
-import com.alibaba.csp.sentinel.transport.config.TransportConfig;
-import com.alibaba.csp.sentinel.util.AppNameUtil;
-import com.alibaba.csp.sentinel.util.HostNameUtil;
-import com.alibaba.csp.sentinel.util.StringUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.cc.sentinel.starter.entity.ClusterGroupEntity;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.leader.LeaderLatch;
-import org.apache.curator.framework.recipes.leader.LeaderLatchListener;
-import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.data.Stat;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+![](_v_images/20190315092316655_20206.png =749x)
 
-import java.net.InetAddress;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+push模式  
+![](_v_images/20190315092426427_16740.png =838x)
+  
+改造如下
+1.首先找到页面规则相关的controller，该controller中有相关的规则查询、推送更新的方法，将对应的方法改为zk实现
+![](_v_images/20190318144640153_14650.png =842x)
+  
+2.新建AbstractZookeeperRuleProvider、AbstractZookeeperRulePublisher分别实现DynamicRuleProvider、DynamicRulePublisher来实现动态规则的获取与推送  
+AbstractZookeeperRuleProvider的获取规则方法
+```
+public List<T> getRules(String app, String ip, int port, String appName) throws Exception {
+        byte[] bytes = getClient().getData().forPath(String.format(getZookeeperPath(), appName, getRuleName()));
+        if (null == bytes || bytes.length == 0) {
+            return Collections.emptyList();
+        }
+        String rules = new String(bytes);
+        if (StringUtil.isEmpty(rules)) {
+            return Collections.emptyList();
+        }
+        //List list = getRuleEntityDecoders().convert(rules);
+        List list = getRuleEntityDecoders(app, ip, port, rules);
+        return list;
+    }
+```
+  
+AbstractZookeeperRulePublisher的推送方法
+```
+@Override
+    public void publish(String app, List<T> rules) throws Exception {
+        String reallyPath = String.format(getZookeeperPath(), app, getRuleName());
+        if (rules == null) {
+            return;
+        }
+        Stat stat = getClient().checkExists().forPath(reallyPath);
+        //String rule = ruleEntityEncoder().convert(rules);
+        String rule = ruleEntityEncoder(rules);
+        if (stat == null) {
+            getClient().create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(reallyPath, rule.getBytes());
+            return;
+        }
+        getClient().setData().forPath(reallyPath, rule.getBytes());
+    }
+```
+  
+子类Publisher与Provider实现了具体的RuleEntity与Rule的相互转换，举例如下
+```
+@Service("flowRuleZookeeperProvider")
+public class FlowRuleZookeeperProvider extends AbstractZookeeperRuleProvider<FlowRuleEntity> {
+    @Override
+    protected List<FlowRuleEntity> getRuleEntityDecoders(String app, String ip, int port, String rules) {
+        List<FlowRule> ruleZ = RuleUtils.parseFlowRule(rules);
+        if (rules != null) {
+            return ruleZ.stream().map(rule -> FlowRuleEntity.fromFlowRule(app, ip, port, rule))
+                    .collect(Collectors.toList());
+        } else {
+            return null;
+        }
+    }
+}
+@Service("flowRuleZookeeperPublisher")
+public class FlowRuleZookeeperPublisher extends AbstractZookeeperRulePublisher<FlowRuleEntity> {
+    @Override
+    protected String ruleEntityEncoder(List<FlowRuleEntity> rules) {
+        String data = JSON.toJSONString(rules.stream().map(FlowRuleEntity::toFlowRule).collect(Collectors.toList()));
+        return data;
+    }
+}
+```
 
+3.修改了ParamFlowRuleEntity的一个注解@JsonIgnore为@JSONField(serialize = false)，前面注解是jackson的，后面是fastjson的，因为用的是fastjson所以修改为后面注解方式，不然会导致序列化错误
+  
+4.之前规则id获取采用的是AtomicLong,服务重启后值就会消失，故修改此地方获取全局不重复id，使用zk分布式id修改InMemoryRuleRepositoryAdapter如下
+```
+public long nextId(T entity) {
+        String entityName = entity.getClass().getSimpleName();
+        DistributedAtomicLong distAtomicLong = new DistributedAtomicLong(curatorFramework, "/" + entityName, new ExponentialBackoffRetry(SLEEP_TIME, RETRY_TIMES));
+        long num;
+        try {
+            num = distAtomicLong.increment().postValue();
+        } catch (Exception e) {
+            return nextId();
+        }
+        return initNum + num;
+    }
+```
+  
+5.pom增加引用sentinel-datasource-zookeeper
+```
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-datasource-zookeeper</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+```
+  
+# 客户端改造
+问题1：原始客户端接入模式需要早启动参数中增加配置，不是很方便。使用zk数据源后，客户端需要增加对应的规则监听与注册，希望能有一个统一的依赖jar完成这个事情  
+![](_v_images/20190318155700263_18281.png =665x)
+  
+问题2：使用集群流控功能时候，需要手动指定TokenServer和TokenClient，这样每次应用重启都需要配置一次此配置
+上述问题解决方案  
+增加一个模块sentinel-zookeeper-starter，模块目录如下  
+![](_v_images/20190318161451447_8774.png)
+  
+通过SPI方式发现服务，spring.factories文件内容如下，spring-boot启动时候会加载META-INF下面的的配置文件
+```
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.cc.sentinel.starter.SentinelAutoConfiguration
+```
+SentinelConfiguration类完成了程序启动的初始化内容，该类完成了相关bean的创建，zk数据源的注册与监听，集群服务的TokenServer自动选举，宕机自动failover，注意：默认端口是
+```
 /**
  * Sentinel启动配置类，该类完成了相关bean的创建，zk数据源的注册与监听，集群服务的TokenServer自动选举，宕机自动failover
  *
@@ -417,4 +493,34 @@ public class SentinelConfiguration implements InitializingBean, DisposableBean {
             return HostNameUtil.getIp() + SEPARATOR + TransportConfig.getRuntimePort();
         }
     }
-}
+``` 
+
+
+然后，pom中增加，deploy即可发布此jar到maven仓库，所有需要使用sentinel的客户端引用此jar，然后在配置文件增加如下配置即可  
+pom文件修改
+```
+<distributionManagement>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>http://172.16.1.110:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>releases</id>
+            <name>Releases</name>
+            <url>http://172.16.1.110:8081/nexus/content/repositories/releases</url>
+        </repository>
+    </distributionManagement>
+```
+配置文件修改（yml实例）sentinel.application.enable代表是否开启sentinel，sentinel.zookeeper.autoVoteEnable代表是否开启自动选举
+```
+sentinel:
+  application:
+    enable: true
+    name: sentinel-atp
+    port: 8819
+    dashboard: localhost:8080
+  zookeeper:
+    enable: true
+    address: localhost:2181
+    autoVoteEnable: true
+```
