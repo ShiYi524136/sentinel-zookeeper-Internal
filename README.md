@@ -1,4 +1,3 @@
 # sentinel-zookeeper-Internal
-改造阿里巴巴sentinel,使用zk作为数据源的内部版本
-待添加功能-自动选举token-server(已经实现在develop版本中)
-文档待补充...代码待优化...
+改造阿里巴巴sentinel,使用zk作为数据源的内部版本，实现了自动选举功能
+详细文档见WATCH-ME.md或者wiki
