@@ -117,7 +117,7 @@ public class InMemoryMetricsRepository implements MetricsRepository<MetricEntity
             return results;
         }
 
-        // TODO: 2019/3/26 将时间的处理放在ES查询中(留给后人解决)
+        // TODO: 2019/3/26 将时间的处理放在ES查询中(在公司所剩时日不多了，留给后人弄吧，哈哈~)
         if (dashboardProperties.getApplication().isEnable()) {
             List<MetricEntity> list = metricEntityRepository.findByApp(app);
             /*QueryBuilder queryBuilder = QueryBuilders.rangeQuery("timestamp")
