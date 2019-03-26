@@ -24,11 +24,21 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import com.alibaba.csp.sentinel.dashboard.config.DashboardProperties;
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.MetricEntity;
+import com.alibaba.csp.sentinel.dashboard.repository.elasticsearch.MetricEntityRepository;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.atomic.DistributedAtomicLong;
+import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 /**
  * Caches metrics data in a period of time in memory.
@@ -41,26 +51,54 @@ public class InMemoryMetricsRepository implements MetricsRepository<MetricEntity
 
     private static final long MAX_METRIC_LIVE_TIME_MS = 1000 * 60 * 5;
 
+    @Resource
+    private MetricEntityRepository metricEntityRepository;
+
+    @Autowired
+    private DashboardProperties dashboardProperties;
+
+    @Autowired
+    private CuratorFramework curatorFramework;
+
+    private static final int RETRY_TIMES = 3;
+
+    private static final int SLEEP_TIME = 1000;
     /**
      * {@code app -> resource -> timestamp -> metric}
      */
     private Map<String, Map<String, ConcurrentLinkedHashMap<Long, MetricEntity>>> allMetrics = new ConcurrentHashMap<>();
 
 
+    private Long getId() {
+        DistributedAtomicLong distAtomicLong = new DistributedAtomicLong(curatorFramework, "/" + "es", new ExponentialBackoffRetry(SLEEP_TIME, RETRY_TIMES));
+        long num = 0L;
+        try {
+            num = distAtomicLong.increment().postValue();
+        } catch (Exception e) {
+            //return nextId();
+        }
+        return num;
+    }
 
     @Override
     public synchronized void save(MetricEntity entity) {
         if (entity == null || StringUtil.isBlank(entity.getApp())) {
             return;
         }
+
+        if (dashboardProperties.getApplication().isEnable()) {
+            entity.setId(entity.getTimestamp().getTime());
+            metricEntityRepository.save(entity);
+            return;
+        }
         allMetrics.computeIfAbsent(entity.getApp(), e -> new ConcurrentHashMap<>(16))
-            .computeIfAbsent(entity.getResource(), e -> new ConcurrentLinkedHashMap.Builder<Long, MetricEntity>()
-                .maximumWeightedCapacity(MAX_METRIC_LIVE_TIME_MS).weigher((key, value) -> {
-                    // Metric older than {@link #MAX_METRIC_LIVE_TIME_MS} will be removed.
-                    int weight = (int)(System.currentTimeMillis() - key);
-                    // weight must be a number greater than or equal to one
-                    return Math.max(weight, 1);
-                }).build()).put(entity.getTimestamp().getTime(), entity);
+                .computeIfAbsent(entity.getResource(), e -> new ConcurrentLinkedHashMap.Builder<Long, MetricEntity>()
+                        .maximumWeightedCapacity(MAX_METRIC_LIVE_TIME_MS).weigher((key, value) -> {
+                            // Metric older than {@link #MAX_METRIC_LIVE_TIME_MS} will be removed.
+                            int weight = (int) (System.currentTimeMillis() - key);
+                            // weight must be a number greater than or equal to one
+                            return Math.max(weight, 1);
+                        }).build()).put(entity.getTimestamp().getTime(), entity);
     }
 
     @Override
@@ -78,6 +116,21 @@ public class InMemoryMetricsRepository implements MetricsRepository<MetricEntity
         if (StringUtil.isBlank(app)) {
             return results;
         }
+
+        // TODO: 2019/3/26 将时间的处理放在ES查询中(留给后人解决)
+        if (dashboardProperties.getApplication().isEnable()) {
+            List<MetricEntity> list = metricEntityRepository.findByApp(app);
+            /*QueryBuilder queryBuilder = QueryBuilders.rangeQuery("timestamp")
+                    .from(startTime)
+                    .to(endTime)
+                    .includeLower(true)
+                    .includeUpper(true);
+            Iterable<MetricEntity> list2 = metricEntityRepository.search(queryBuilder);*/
+            return list.stream().filter(entity -> (entity.getResource().equals(resource))).
+                    filter(entry -> entry.getTimestamp().getTime() >= startTime).
+                    filter(entry -> entry.getTimestamp().getTime() <= endTime).collect(Collectors.toList());
+        }
+
         Map<String, ConcurrentLinkedHashMap<Long, MetricEntity>> resourceMap = allMetrics.get(app);
         if (resourceMap == null) {
             return results;
@@ -99,6 +152,18 @@ public class InMemoryMetricsRepository implements MetricsRepository<MetricEntity
         List<String> results = new ArrayList<>();
         if (StringUtil.isBlank(app)) {
             return results;
+        }
+
+        // TODO: 2019/3/26 请解决数据量大的问题，加一个时间范围刷选，处理可以同上面todo逻辑一致
+        if (dashboardProperties.getApplication().isEnable()) {
+            List<MetricEntity> list = metricEntityRepository.findByApp(app);
+            List<String> resourceList = new ArrayList<>();
+            for (MetricEntity entity : list) {
+                if (!resourceList.contains(entity.getResource())) {
+                    resourceList.add(entity.getResource());
+                }
+            }
+            return resourceList;
         }
         // resource -> timestamp -> metric
         Map<String, ConcurrentLinkedHashMap<Long, MetricEntity>> resourceMap = allMetrics.get(app);
@@ -128,17 +193,17 @@ public class InMemoryMetricsRepository implements MetricsRepository<MetricEntity
         }
         // Order by last minute b_qps DESC.
         return resourceCount.entrySet()
-            .stream()
-            .sorted((o1, o2) -> {
-                MetricEntity e1 = o1.getValue();
-                MetricEntity e2 = o2.getValue();
-                int t = e2.getBlockQps().compareTo(e1.getBlockQps());
-                if (t != 0) {
-                    return t;
-                }
-                return e2.getPassQps().compareTo(e1.getPassQps());
-            })
-            .map(Entry::getKey)
-            .collect(Collectors.toList());
+                .stream()
+                .sorted((o1, o2) -> {
+                    MetricEntity e1 = o1.getValue();
+                    MetricEntity e2 = o2.getValue();
+                    int t = e2.getBlockQps().compareTo(e1.getBlockQps());
+                    if (t != 0) {
+                        return t;
+                    }
+                    return e2.getPassQps().compareTo(e1.getPassQps());
+                })
+                .map(Entry::getKey)
+                .collect(Collectors.toList());
     }
 }

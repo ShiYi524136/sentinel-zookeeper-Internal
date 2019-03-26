@@ -15,20 +15,28 @@
  */
 package com.alibaba.csp.sentinel.dashboard.datasource.entity;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+
 import java.util.Date;
 
 /**
  * @author leyou
  */
+@Document(indexName="elasticsearch")
 public class MetricEntity {
+    @Id
     private Long id;
     private Date gmtCreate;
     private Date gmtModified;
+    @Field
     private String app;
     /**
      * 监控信息的时间戳
      */
     private Date timestamp;
+    @Field
     private String resource;
     private Long passQps;
     private Long successQps;

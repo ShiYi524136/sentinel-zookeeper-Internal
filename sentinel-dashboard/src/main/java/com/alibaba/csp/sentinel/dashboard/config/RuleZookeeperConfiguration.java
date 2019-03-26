@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableConfigurationProperties(DashboardProperties.class)
-@ConditionalOnProperty(name = "sentinel.zookeeper.enable", havingValue = "true")
+@ConditionalOnProperty(name = "dashboard.zookeeper.enable", havingValue = "true")
 public class RuleZookeeperConfiguration implements DisposableBean, InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(RuleZookeeperConfiguration.class);

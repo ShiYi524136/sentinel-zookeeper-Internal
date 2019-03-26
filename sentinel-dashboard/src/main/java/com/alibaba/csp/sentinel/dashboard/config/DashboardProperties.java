@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author: cc
  * @Date: 2019-03-04
  */
-@ConfigurationProperties(prefix = "sentinel")
+@ConfigurationProperties(prefix = "dashboard")
 public class DashboardProperties {
 
     /**
@@ -45,6 +45,11 @@ public class DashboardProperties {
          */
         private String logDir;
 
+        /**
+         * 是否开启es
+         */
+        private boolean enable;
+
         public String getLogDir() {
             return logDir;
         }
@@ -75,6 +80,14 @@ public class DashboardProperties {
 
         public void setPort(String port) {
             this.port = port;
+        }
+
+        public boolean isEnable() {
+            return enable;
+        }
+
+        public void setEnable(boolean enable) {
+            this.enable = enable;
         }
     }
 
