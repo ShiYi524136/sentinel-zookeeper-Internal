@@ -49,3 +49,7 @@ java -Dserver.port=8080 \
 客户端正确配置并启动后，会主动向控制台发送心跳包，汇报自己的存在；控制台收到客户端心跳包之后，会在左侧导航栏中显示该客户端信息。控制台能够看到客户端的机器信息，则表明客户端接入成功了。
 
 更多：[控制台功能介绍](./Sentinel_Dashboard_Feature.md)。
+
+## 4. 参考资料
+
+Sentinel之控制台dashboard(https://www.jianshu.com/p/affbb66c15e6)

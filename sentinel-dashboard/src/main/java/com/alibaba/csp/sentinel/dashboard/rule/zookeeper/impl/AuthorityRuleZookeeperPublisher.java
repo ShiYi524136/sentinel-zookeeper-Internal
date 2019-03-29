@@ -1,12 +1,13 @@
 package com.alibaba.csp.sentinel.dashboard.rule.zookeeper.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.AuthorityRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.rule.zookeeper.AbstractZookeeperRulePublisher;
 import com.alibaba.fastjson.JSON;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Description Zookeeper规则发布类
@@ -18,8 +19,8 @@ public class AuthorityRuleZookeeperPublisher extends AbstractZookeeperRulePublis
 
     @Override
     protected String ruleEntityEncoder(List<AuthorityRuleEntity> rules) {
-        String data = JSON.toJSONString(
-                rules.stream().map(AuthorityRuleEntity::getRule).collect(Collectors.toList()));
+        String data = JSON.toJSONString(rules.stream().map(AuthorityRuleEntity::getRule).collect(Collectors.toList()));
+
         return data;
     }
 }
