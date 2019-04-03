@@ -143,6 +143,20 @@
             <version>4.1.16.Final</version>
         </dependency>
 
+        <!--持久层选用Spring Data JPA框架-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.10</version>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
 
     <build>
