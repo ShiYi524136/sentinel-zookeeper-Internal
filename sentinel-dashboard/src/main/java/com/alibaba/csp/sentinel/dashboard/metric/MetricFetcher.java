@@ -76,8 +76,9 @@ public class MetricFetcher {
 
     private Map<String, AtomicLong> appLastFetchTime = new ConcurrentHashMap<>();
 
-    // jpaMetricsRepository注解为MySQL持久化，屏蔽此注解，默认就只用InMemoryMetricsRepository。
-    @Qualifier("jpaMetricsRepository")
+    // jpaMetricsRepository注解为MySQL持久化，elasticMetricsRepository为，屏蔽此注解，默认就只用InMemoryMetricsRepository。
+//    @Qualifier("jpaMetricsRepository")
+    @Qualifier("elasticMetricsRepository")
     @Autowired
     private MetricsRepository<MetricEntity> metricStore;
 

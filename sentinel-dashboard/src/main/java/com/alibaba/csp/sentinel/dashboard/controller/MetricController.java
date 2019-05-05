@@ -49,7 +49,9 @@ public class MetricController {
 
     private static final long maxQueryIntervalMs = 1000 * 60 * 60;
 
-    @Qualifier("jpaMetricsRepository")
+    // jpaMetricsRepository注解为MySQL持久化，elasticMetricsRepository为，屏蔽此注解，默认就只用InMemoryMetricsRepository。
+    // @Qualifier("jpaMetricsRepository")
+    @Qualifier("elasticMetricsRepository")
     @Autowired
     private MetricsRepository<MetricEntity> metricStore;
 
