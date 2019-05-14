@@ -15,12 +15,12 @@
  */
 package com.alibaba.csp.sentinel.dashboard.discovery;
 
+import static org.junit.Assert.fail;
+
 import java.util.ConcurrentModificationException;
 import java.util.Set;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class AppInfoTest {
 
@@ -65,4 +65,14 @@ public class AppInfoTest {
         return machine;
     }
 
+    @Test
+    public void test() throws Exception {
+
+        // FormatDateTimeFormatter formatter = new FormatDateTimeFormatter(dateFormatterPattern, parser, Locale.ROOT);
+        // FormatDateTimeFormatter dateTimeFormatter = new DateMathParser(formatter);
+        // DateTimeFormatter parser = dateTimeFormatter.parser();
+        //
+        // MutableDateTime date = new MutableDateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC);
+        // int end = parser.parseInto(date, "Fri May 10 10:51:30 CST 2019", 0);
+    }
 }

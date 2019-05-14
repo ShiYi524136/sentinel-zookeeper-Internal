@@ -16,29 +16,25 @@
 package com.alibaba.csp.sentinel.dashboard.repository.metric;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import javax.annotation.Resource;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.atomic.DistributedAtomicLong;
+import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.alibaba.csp.sentinel.dashboard.config.DashboardProperties;
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.MetricEntity;
 import com.alibaba.csp.sentinel.dashboard.repository.elasticsearch.MetricEntityRepository;
 import com.alibaba.csp.sentinel.util.StringUtil;
-
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.atomic.DistributedAtomicLong;
-import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 
 /**
  * Caches metrics data in a period of time in memory.
@@ -87,7 +83,7 @@ public class InMemoryMetricsRepository implements MetricsRepository<MetricEntity
         }
 
         if (dashboardProperties.getApplication().isEnable()) {
-            entity.setId(entity.getTimestamp().getTime());
+            entity.setId(String.valueOf(entity.getTimestamp().getTime()));
             metricEntityRepository.save(entity);
             return;
         }
@@ -117,7 +113,7 @@ public class InMemoryMetricsRepository implements MetricsRepository<MetricEntity
             return results;
         }
 
-        // TODO: 2019/3/26 将时间的处理放在ES查询中(在公司所剩时日不多了，留给后人弄吧，哈哈~)
+        // TODO: 2019/3/26 将时间的处理放在ES查询中
         if (dashboardProperties.getApplication().isEnable()) {
             List<MetricEntity> list = metricEntityRepository.findByApp(app);
             /*QueryBuilder queryBuilder = QueryBuilders.rangeQuery("timestamp")

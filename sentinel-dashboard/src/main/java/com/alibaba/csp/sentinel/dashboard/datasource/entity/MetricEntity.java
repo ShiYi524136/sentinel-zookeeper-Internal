@@ -15,45 +15,79 @@
  */
 package com.alibaba.csp.sentinel.dashboard.datasource.entity;
 
+import java.util.Date;
+
+import org.elasticsearch.common.UUIDs;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Data;
 
 /**
  * @author leyou
  */
-@Document(indexName="elasticsearch")
+@Data
+@Document(indexName = "laidian-metric", type = "sentinel")
 public class MetricEntity {
     @Id
-    private Long id;
-    private Date gmtCreate;
-    private Date gmtModified;
     @Field
+    private String id = UUIDs.randomBase64UUID();
+
+    @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date gmtCreate;
+
+    @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    // @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ", timezone = "GMT+8")
+    private Date gmtModified;
+
+    @Field(type = FieldType.Text)
     private String app;
     /**
      * 监控信息的时间戳
      */
+    @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date timestamp;
-    @Field
+
+    @Field(type = FieldType.Text)
     private String resource;
+
+    @Field(index = false, type = FieldType.Long)
     private Long passQps;
+
+    @Field(index = false, type = FieldType.Long)
     private Long successQps;
+
+    @Field(index = false, type = FieldType.Long)
     private Long blockQps;
+    /**
+     * 发生异常的次数
+     */
+    @Field(index = false, type = FieldType.Long)
     private Long exceptionQps;
 
     /**
-     * summary rt of all success exit qps.
+     * 所有successQps的Rt的和。
      */
+    @Field(index = false, type = FieldType.Double)
     private double rt;
 
     /**
      * 本次聚合的总条数
      */
+    @Field(index = false, type = FieldType.Integer)
     private int count;
 
+    @Field(index = false, type = FieldType.Integer)
     private int resourceCode;
+
 
     public static MetricEntity copyOf(MetricEntity oldEntity) {
         MetricEntity entity = new MetricEntity();
@@ -105,106 +139,6 @@ public class MetricEntity {
         this.successQps = successQps;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Date getGmtCreate() {
-        return gmtCreate;
-    }
-
-    public void setGmtCreate(Date gmtCreate) {
-        this.gmtCreate = gmtCreate;
-    }
-
-    public Date getGmtModified() {
-        return gmtModified;
-    }
-
-    public void setGmtModified(Date gmtModified) {
-        this.gmtModified = gmtModified;
-    }
-
-    public String getApp() {
-        return app;
-    }
-
-    public void setApp(String app) {
-        this.app = app;
-    }
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getResource() {
-        return resource;
-    }
-
-    public void setResource(String resource) {
-        this.resource = resource;
-        this.resourceCode = resource.hashCode();
-    }
-
-    public Long getPassQps() {
-        return passQps;
-    }
-
-    public void setPassQps(Long passQps) {
-        this.passQps = passQps;
-    }
-
-    public Long getBlockQps() {
-        return blockQps;
-    }
-
-    public void setBlockQps(Long blockQps) {
-        this.blockQps = blockQps;
-    }
-
-    public Long getExceptionQps() {
-        return exceptionQps;
-    }
-
-    public void setExceptionQps(Long exceptionQps) {
-        this.exceptionQps = exceptionQps;
-    }
-
-    public double getRt() {
-        return rt;
-    }
-
-    public void setRt(double rt) {
-        this.rt = rt;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    public int getResourceCode() {
-        return resourceCode;
-    }
-
-    public Long getSuccessQps() {
-        return successQps;
-    }
-
-    public void setSuccessQps(Long successQps) {
-        this.successQps = successQps;
-    }
 
     @Override
     public String toString() {
