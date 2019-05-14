@@ -128,6 +128,11 @@ public class MetricEntity {
         this.successQps += successQps;
     }
 
+    public void setResource(String resource) {
+        this.resource = resource;
+        this.resourceCode = resource.hashCode();
+    }
+
     /**
      * {@link #rt} = {@code avgRt * successQps}
      *
