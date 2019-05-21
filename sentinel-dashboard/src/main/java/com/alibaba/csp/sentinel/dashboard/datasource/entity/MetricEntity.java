@@ -15,6 +15,7 @@
  */
 package com.alibaba.csp.sentinel.dashboard.datasource.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.elasticsearch.common.UUIDs;
@@ -33,8 +34,14 @@ import lombok.Data;
  */
 @Data
 @Document(indexName = "laidian-metric", type = "sentinel")
-public class MetricEntity {
-    @Id
+public class MetricEntity implements Serializable {
+	
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 512277320552813895L;
+
+	@Id
     @Field
     private String id = UUIDs.randomBase64UUID();
 
