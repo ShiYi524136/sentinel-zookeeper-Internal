@@ -23,7 +23,13 @@ import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
  * @author leyou
  */
 public class DegradeRuleEntity implements RuleEntity {
-    private Long id;
+	
+	
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -5045490756872446547L;
+	private Long id;
     private String app;
     private String ip;
     private Integer port;

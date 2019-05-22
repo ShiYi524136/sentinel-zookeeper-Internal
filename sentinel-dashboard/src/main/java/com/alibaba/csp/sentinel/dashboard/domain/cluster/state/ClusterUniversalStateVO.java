@@ -15,13 +15,21 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster.state;
 
+import java.io.Serializable;
+
 /**
  * @author Eric Zhao
  * @since 1.4.0
  */
-public class ClusterUniversalStateVO {
+public class ClusterUniversalStateVO implements Serializable {
+	
+	
 
-    private ClusterStateSimpleEntity stateInfo;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -883221519923608000L;
+	private ClusterStateSimpleEntity stateInfo;
     private ClusterClientStateVO client;
     private ClusterServerStateVO server;
 

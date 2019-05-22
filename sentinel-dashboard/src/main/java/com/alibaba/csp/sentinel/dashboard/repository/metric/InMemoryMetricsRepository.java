@@ -202,4 +202,11 @@ public class InMemoryMetricsRepository implements MetricsRepository<MetricEntity
                 .map(Entry::getKey)
                 .collect(Collectors.toList());
     }
+
+	@Override
+	public List<MetricEntity> queryByAppAndResourceBetween(String app, String resource, String startDateTimeStr,
+			String endDateTimeStr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

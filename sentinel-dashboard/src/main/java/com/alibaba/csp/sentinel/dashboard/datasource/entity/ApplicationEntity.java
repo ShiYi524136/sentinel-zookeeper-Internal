@@ -15,6 +15,7 @@
  */
 package com.alibaba.csp.sentinel.dashboard.datasource.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.alibaba.csp.sentinel.dashboard.discovery.AppInfo;
@@ -22,8 +23,15 @@ import com.alibaba.csp.sentinel.dashboard.discovery.AppInfo;
 /**
  * @author leyou
  */
-public class ApplicationEntity {
-    private Long id;
+public class ApplicationEntity implements Serializable {
+	
+	
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -5641426993834919811L;
+
+	private Long id;
     private Date gmtCreate;
     private Date gmtModified;
     private String app;

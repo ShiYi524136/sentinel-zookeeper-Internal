@@ -15,15 +15,22 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster.request;
 
+import java.io.Serializable;
+
 import com.alibaba.csp.sentinel.dashboard.domain.cluster.config.ClusterClientConfig;
 
 /**
  * @author Eric Zhao
  * @since 1.4.0
  */
-public class ClusterClientModifyRequest implements ClusterModifyRequest {
+public class ClusterClientModifyRequest implements ClusterModifyRequest, Serializable {
 
-    private String app;
+	
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 8226955026965048225L;
+	private String app;
     private String ip;
     private Integer port;
 

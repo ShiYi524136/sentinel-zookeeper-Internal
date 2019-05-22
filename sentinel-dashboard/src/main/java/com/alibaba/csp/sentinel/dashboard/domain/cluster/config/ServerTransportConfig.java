@@ -15,13 +15,20 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster.config;
 
+import java.io.Serializable;
+
 /**
  * @author Eric Zhao
  * @since 1.4.0
  */
-public class ServerTransportConfig {
+public class ServerTransportConfig implements Serializable {
+	
 
-    public static final int DEFAULT_PORT = 18730;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -5423859668997969232L;
+	public static final int DEFAULT_PORT = 18730;
     public static final int DEFAULT_IDLE_SECONDS = 600;
 
     private Integer port;

@@ -15,13 +15,20 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster.state;
 
+import java.io.Serializable;
+
 /**
  * @author Eric Zhao
  * @since 1.4.0
  */
-public class ClusterStateSimpleEntity {
+public class ClusterStateSimpleEntity implements Serializable {
+	
 
-    private Integer mode;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -3940768947919325494L;
+	private Integer mode;
     private Long lastModified;
     private Boolean clientAvailable;
     private Boolean serverAvailable;

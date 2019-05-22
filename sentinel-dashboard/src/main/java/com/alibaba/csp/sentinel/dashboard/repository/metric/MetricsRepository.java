@@ -17,6 +17,8 @@ package com.alibaba.csp.sentinel.dashboard.repository.metric;
 
 import java.util.List;
 
+import com.alibaba.csp.sentinel.dashboard.datasource.entity.MetricEntity;
+
 /**
  * Repository interface for aggregated metrics data.
  *
@@ -49,6 +51,23 @@ public interface MetricsRepository<T> {
      * @return all metrics in query conditions
      */
     List<T> queryByAppAndResourceBetween(String app, String resource, long startTime, long endTime);
+
+	/**
+	 * Get all metrics by {@code appName} and {@code resourceName} between a
+	 * period of time.
+	 *
+	 * @param app
+	 *            application name for Sentinel
+	 * @param resource
+	 *            resource name
+	 * @param startTime
+	 *            start timestamp
+	 * @param endTime
+	 *            end timestamp
+	 * @return all metrics in query conditions
+	 */
+	public List<MetricEntity> queryByAppAndResourceBetween(String app, String resource, String startDateTimeStr,
+			String endDateTimeStr);
 
     /**
      * List resource name of provided application name.

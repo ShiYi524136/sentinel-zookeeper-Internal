@@ -15,15 +15,22 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * @author Eric Zhao
  * @since 1.4.1
  */
-public class ClusterAppAssignResultVO {
+public class ClusterAppAssignResultVO implements Serializable {
+	
+	
 
-    private Set<String> failedServerSet;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -656762998469563967L;
+	private Set<String> failedServerSet;
     private Set<String> failedClientSet;
 
     private Integer totalCount;

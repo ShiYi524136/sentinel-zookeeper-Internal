@@ -15,13 +15,19 @@
  */
 package com.alibaba.csp.sentinel.dashboard.datasource.entity;
 
+import java.io.Serializable;
+
 /**
  * @author Eric Zhao
  * @since 0.2.1
  */
-public class SentinelVersion {
+public class SentinelVersion implements Serializable {
 
-    private int majorVersion;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -5087385680727545484L;
+	private int majorVersion;
     private int minorVersion;
     private int fixVersion;
     private String postfix;

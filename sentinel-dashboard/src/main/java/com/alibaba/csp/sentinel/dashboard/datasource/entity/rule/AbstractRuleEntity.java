@@ -24,8 +24,14 @@ import com.alibaba.csp.sentinel.slots.block.AbstractRule;
  * @since 0.2.1
  */
 public abstract class AbstractRuleEntity<T extends AbstractRule> implements RuleEntity {
+	
 
-    protected Long id;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 8610026609949684266L;
+
+	protected Long id;
 
     protected String app;
     protected String ip;

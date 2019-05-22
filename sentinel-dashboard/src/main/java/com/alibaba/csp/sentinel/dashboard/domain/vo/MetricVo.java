@@ -12,6 +12,7 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.vo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,8 +25,13 @@ import lombok.Data;
  * @author leyou
  */
 @Data
-public class MetricVo implements Comparable<MetricVo> {
-    private String id;
+public class MetricVo implements Comparable<MetricVo>, Serializable {
+	
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 1814211328556187505L;
+	private String id;
     private String app;
     private Long timestamp;
     private Long gmtCreate = System.currentTimeMillis();

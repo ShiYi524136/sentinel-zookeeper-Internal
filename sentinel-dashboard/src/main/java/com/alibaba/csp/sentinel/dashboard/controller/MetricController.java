@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +49,10 @@ public class MetricController {
     private static Logger logger = LoggerFactory.getLogger(MetricController.class);
 
     private static final long maxQueryIntervalMs = 1000 * 60 * 60;
+
+	// #数据自动刷新频率(单位：毫秒). 实时监控控制器，默认查询5分钟内的数据，最大不能超过1个小时。
+	@Value("${dashboard.metric.data.refresh.interval}")
+	private long dataRefreshInterval;
 
     // jpaMetricsRepository注解为MySQL持久化，elasticMetricsRepository为，屏蔽此注解，默认就只用InMemoryMetricsRepository。
     // @Qualifier("jpaMetricsRepository")
@@ -77,12 +82,21 @@ public class MetricController {
         if (endTime == null) {
             endTime = System.currentTimeMillis();
         }
+
+		// 默认查询5分钟内的数据，最大不能超过1个小时
         if (startTime == null) {
-            startTime = endTime - 1000 * 60 * 5;
+			if (dataRefreshInterval == 0) {
+				startTime = endTime - 1000 * 60 * 5;
+			}
+			else {
+				startTime = endTime - dataRefreshInterval;
+			}
         }
+
         if (endTime - startTime > maxQueryIntervalMs) {
             return Result.ofFail(-1, "time intervalMs is too big, must <= 1h");
         }
+
         List<String> resources = metricStore.listResourcesOfApp(app);
         logger.debug("queryTopResourceMetric(), resources.size()={}", resources.size());
 

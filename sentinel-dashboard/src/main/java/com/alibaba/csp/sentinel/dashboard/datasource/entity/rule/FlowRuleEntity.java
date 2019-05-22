@@ -24,8 +24,13 @@ import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
  * @author leyou
  */
 public class FlowRuleEntity implements RuleEntity {
+	 
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 8209548697670546711L;
 
-    private Long id;
+	private Long id;
     private String app;
     private String ip;
     private Integer port;

@@ -15,13 +15,20 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster;
 
+import java.io.Serializable;
+
 /**
  * @author Eric Zhao
  * @since 1.4.1
  */
-public class ClusterClientInfoVO {
+public class ClusterClientInfoVO implements Serializable {
+	
 
-    private String serverHost;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 7968813346715960806L;
+	private String serverHost;
     private Integer serverPort;
 
     private Integer clientState;

@@ -15,13 +15,20 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain;
 
+import java.io.Serializable;
+
 /**
  * @author leyou
  * @author Eric Zhao
  */
-public class Result<R> {
+public class Result<R> implements Serializable {
 
-    private boolean success;
+	
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -2240990631760798198L;
+	private boolean success;
     private int code;
     private String msg;
     private R data;

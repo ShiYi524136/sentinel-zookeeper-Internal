@@ -15,13 +15,20 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster.state;
 
+import java.io.Serializable;
+
 /**
  * @author Eric Zhao
  * @since 1.4.1
  */
-public class ClusterRequestLimitVO {
+public class ClusterRequestLimitVO implements Serializable {
+	
 
-    private String namespace;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 6734136382939383628L;
+	private String namespace;
     private Double currentQps;
     private Double maxAllowedQps;
 

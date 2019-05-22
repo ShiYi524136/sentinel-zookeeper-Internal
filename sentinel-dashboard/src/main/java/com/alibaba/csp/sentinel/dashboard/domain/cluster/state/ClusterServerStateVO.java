@@ -15,6 +15,7 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster.state;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -26,9 +27,16 @@ import com.alibaba.csp.sentinel.dashboard.domain.cluster.config.ServerTransportC
  * @author Eric Zhao
  * @since 1.4.0
  */
-public class ClusterServerStateVO {
+public class ClusterServerStateVO implements Serializable {
+	
+	
 
-    private String appName;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -3012349605483860553L;
+
+	private String appName;
 
     private ServerTransportConfig transport;
     private ServerFlowConfig flow;

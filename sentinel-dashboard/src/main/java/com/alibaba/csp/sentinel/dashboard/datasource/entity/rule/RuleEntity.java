@@ -15,12 +15,13 @@
  */
 package com.alibaba.csp.sentinel.dashboard.datasource.entity.rule;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author leyou
  */
-public interface RuleEntity {
+public interface RuleEntity extends Serializable {
 
     Long getId();
 

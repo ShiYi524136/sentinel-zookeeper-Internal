@@ -15,18 +15,23 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.vo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.csp.sentinel.command.vo.NodeVo;
-
 import com.alibaba.csp.sentinel.dashboard.domain.ResourceTreeNode;
 
 /**
  * @author leyou
  */
-public class ResourceVo {
-    private String parentTtId;
+public class ResourceVo implements Serializable {
+	
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -2187127761572749544L;
+	private String parentTtId;
     private String ttId;
     private String resource;
 

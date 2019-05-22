@@ -15,6 +15,7 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.vo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,9 +26,14 @@ import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 /**
  * @author leyou
  */
-public class MachineInfoVo {
+public class MachineInfoVo implements Serializable {
+	
 
-    private String app;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -5772665944775518744L;
+	private String app;
     private String hostname;
     private String ip;
     private Integer port;

@@ -41,7 +41,6 @@ import com.alibaba.csp.sentinel.util.StringUtil;
  * @since 1.0.0
  **/
 @Repository("elasticMetricsRepository")
-// public class ElasticMetricsRepository implements MetricsRepository<MetricEntity> {
 public class ElasticMetricsRepository implements MetricsRepository<MetricEntity> {
 
     private final Logger logger = LoggerFactory.getLogger(ElasticMetricsRepository.class);
@@ -52,6 +51,9 @@ public class ElasticMetricsRepository implements MetricsRepository<MetricEntity>
     @Autowired
     private TransportClient client;
 
+	private final String backslash = "/";
+	private final String backslash_replace = "#_#";
+
     /**
      * Save the metric to the storage repository.
      *
@@ -60,11 +62,22 @@ public class ElasticMetricsRepository implements MetricsRepository<MetricEntity>
      */
     @Override
     public void save(MetricEntity metric) {
-        MetricEntity MetricEntity = new MetricEntity();
-        BeanUtils.copyProperties(metric, MetricEntity, "id");
-        logger.debug("存储之前metric={},转换之后esMetricEntity={}", metric, MetricEntity);
-        repository.save(metric);
-    }
+		MetricEntity metricEntity = new MetricEntity();
+		BeanUtils.copyProperties(metric, metricEntity, "id");
+		logger.debug("存储之前metric={},转换之后esMetricEntity={}", metric, metricEntity);
+
+		metricEntity.setResource(backslashReplace(metricEntity.getResource()));
+
+		repository.save(metricEntity);
+	}
+
+	private String backslashReplace(String resource) {
+		if (resource.contains(backslash)) {
+			return resource.replaceAll(backslash, backslash_replace);
+		}
+
+		return resource;
+	}
 
     /**
      * Save all metrics to the storage repository.
@@ -104,7 +117,30 @@ public class ElasticMetricsRepository implements MetricsRepository<MetricEntity>
 
         String endDateTimeStr = endDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        List<MetricEntity> metrics =
+        return queryByAppAndResourceBetween(app, resource, startDateTimeStr, endDateTimeStr);
+    }
+
+	/**
+	 * Get all metrics by {@code appName} and {@code resourceName} between a
+	 * period of time.
+	 *
+	 * @param app
+	 *            application name for Sentinel
+	 * @param resource
+	 *            resource name
+	 * @param startTime
+	 *            start timestamp
+	 * @param endTime
+	 *            end timestamp
+	 * @return all metrics in query conditions
+	 */
+	@Override
+	public List<MetricEntity> queryByAppAndResourceBetween(String app, String resource, String startDateTimeStr,
+			String endDateTimeStr) {
+
+		resource = backslashReplace(resource);
+
+		List<MetricEntity> metrics =
             repository.getByAppAndResourceAndTimestampBetween(app, resource, startDateTimeStr, endDateTimeStr);
         if (metrics == null || metrics.isEmpty()) {
             return Collections.emptyList();
@@ -113,10 +149,16 @@ public class ElasticMetricsRepository implements MetricsRepository<MetricEntity>
         metrics.forEach((metric) -> {
             MetricEntity entity = new MetricEntity();
             BeanUtils.copyProperties(metric, entity);
+
+			String resourceT = metric.getResource();
+			if (resourceT.contains(backslash_replace)) {
+				entity.setResource(resourceT.replaceAll(backslash_replace, backslash));
+			}
+
             entities.add(entity);
         });
         return entities;
-    }
+	}
 
     /**
      * List resource name of provided application name.
@@ -141,10 +183,7 @@ public class ElasticMetricsRepository implements MetricsRepository<MetricEntity>
 
         List<MetricEntity> metrics = null;
         try {
-
-            // createTimeRangeQuery(app, format1, format2);
-            // metrics = repository.getResourceByAppAndTimestampAfter(app, format1);
-            metrics = repository.findByAppAndTimestampAfter("sentinel-dashboard", format1);
+			metrics = repository.findByAppAndTimestampAfter(app, format1);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("查询es失败，异常信息=" + e.getMessage(), e);
@@ -157,7 +196,13 @@ public class ElasticMetricsRepository implements MetricsRepository<MetricEntity>
         metrics.forEach((metric) -> {
             MetricEntity entity = new MetricEntity();
             BeanUtils.copyProperties(metric, entity);
+
             String resource = entity.getResource();
+			if (resource.contains(backslash_replace)) {
+				resource = resource.replaceAll(backslash_replace, backslash);
+				entity.setResource(resource);
+			}
+
             if (resources.containsKey(resource)) {
                 MetricEntity exist = resources.get(resource);
                 exist.addBlockQps(entity.getBlockQps());

@@ -15,15 +15,21 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster.request;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * @author Eric Zhao
  * @since 1.4.1
  */
-public class ClusterAppAssignMap {
+public class ClusterAppAssignMap implements Serializable {
+	
 
-    private String machineId;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -4372416204092379386L;
+	private String machineId;
     private String ip;
     private Integer port;
 

@@ -17,7 +17,7 @@ mvn clean package
 ### 1.2 如何启动
 
 本地启动命令，添加以下JVM环境变量：
-```bash
+```
 -Dcsp.sentinel.dashboard.server=localhost:8181 -Dproject.name=sentinel-dashboard
 ```
 

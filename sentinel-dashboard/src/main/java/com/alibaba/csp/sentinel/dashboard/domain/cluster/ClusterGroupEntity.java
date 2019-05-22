@@ -15,6 +15,7 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,9 +23,16 @@ import java.util.Set;
  * @author Eric Zhao
  * @since 1.4.1
  */
-public class ClusterGroupEntity {
+public class ClusterGroupEntity implements Serializable {
+	
+	
 
-    private String machineId;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 8207204888871192644L;
+
+	private String machineId;
 
     private String ip;
     private Integer port;

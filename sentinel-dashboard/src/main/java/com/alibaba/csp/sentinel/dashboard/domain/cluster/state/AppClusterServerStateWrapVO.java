@@ -15,15 +15,23 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster.state;
 
+import java.io.Serializable;
+
 /**
  * @author Eric Zhao
  * @since 1.4.1
  */
-public class AppClusterServerStateWrapVO {
+public class AppClusterServerStateWrapVO implements Serializable {
+	
 
-    /**
-     * {ip}@{transport_command_port}.
-     */
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -1623038112272109464L;
+
+	/**
+	 * {ip}@{transport_command_port}.
+	 */
     private String id;
 
     private String ip;

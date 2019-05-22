@@ -15,6 +15,7 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -24,9 +25,15 @@ import com.alibaba.csp.sentinel.dashboard.domain.cluster.request.ClusterAppAssig
  * @author Eric Zhao
  * @since 1.4.1
  */
-public class ClusterAppFullAssignRequest {
+public class ClusterAppFullAssignRequest implements Serializable {
+	
+	
 
-    private List<ClusterAppAssignMap> clusterMap;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 1330353093930745221L;
+	private List<ClusterAppAssignMap> clusterMap;
     private Set<String> remainingList;
 
     public List<ClusterAppAssignMap> getClusterMap() {

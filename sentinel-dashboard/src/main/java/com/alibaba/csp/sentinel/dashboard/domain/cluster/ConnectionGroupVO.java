@@ -15,15 +15,22 @@
  */
 package com.alibaba.csp.sentinel.dashboard.domain.cluster;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author Eric Zhao
  * @since 1.4.0
  */
-public class ConnectionGroupVO {
+public class ConnectionGroupVO implements Serializable {
+	
+	
 
-    private String namespace;
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = -5508194543687679351L;
+	private String namespace;
     private List<ConnectionDescriptorVO> connectionSet;
     private Integer connectedCount;
 

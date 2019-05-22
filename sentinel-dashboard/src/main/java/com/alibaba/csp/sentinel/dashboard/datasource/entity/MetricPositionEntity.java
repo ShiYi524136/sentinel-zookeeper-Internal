@@ -15,13 +15,21 @@
  */
 package com.alibaba.csp.sentinel.dashboard.datasource.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author leyou
  */
-public class MetricPositionEntity {
-    private long id;
+public class MetricPositionEntity implements Serializable {
+	
+	
+	/**
+	 * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
+	 */
+	private static final long serialVersionUID = 933064501153350123L;
+
+	private long id;
     private Date gmtCreate;
     private Date gmtModified;
     private String app;
