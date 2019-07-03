@@ -193,13 +193,61 @@
 
     <build>
         <finalName>sentinel-dashboard</finalName>
+
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <!-- The configuration of the plugin -->
+                <configuration>
+                    <!-- Configuration of the archiver -->
+                    <archive>
+                        <!-- 生成的jar中，不要包含pom.xml和pom.properties这两个文件 -->
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <!-- Manifest specific configuration -->
+                        <manifest>
+                            <!-- 是否要把第三方jar放到manifest的classpath中 -->
+                            <addClasspath>true</addClasspath>
+                            <!-- 生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/ -->
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <!-- 应用的main class -->
+                            <mainClass>com.alibaba.csp.sentinel.dashboard.DashboardApplication</mainClass>
+                        </manifest>
+
+                        <manifestEntries>
+                            <!--MANIFEST.MF 中 Class-Path 加入资源文件目录 -->
+                            <Class-Path>/resources</Class-Path>
+                        </manifestEntries>
+
+                    </archive>
+
+                    <!-- 过滤掉不希望包含在jar中的文件 -->
+                    <excludes>
+                        <excludes>**/*.properties</excludes>
+                        <excludes>**/*.sql</excludes>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <layout>ZIP</layout>
                     <fork>true</fork>
-                    <mainClass>com.alibaba.csp.sentinel.dashboard.DashboardApplication</mainClass>
+                    <!--使用外部配置文件，jar包里没有资源文件 -->
+                    <addResources>true</addResources>
                 </configuration>
                 <executions>
                     <execution>
@@ -210,35 +258,43 @@
                 </executions>
             </plugin>
 
+            <!--拷贝第三方依赖文件到指定目录-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <!-- 此处执行的作用是将依赖jar包拷贝一份存储在target/lib中 -->
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 拷贝依赖jar存储位置，${project.build.directory}为Maven内置变量，缺省为target -->
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <!-- 此处还根据需求添加其他配置，如excludeTransitive、stripVersion等 -->
+                            <excludeTransitive>false</excludeTransitive>
+                            <stripVersion>false</stripVersion>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>${maven.deploy.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
         </plugins>
 
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>**/*.properties</exclude>
+                    <exclude>**/*.sql</exclude>
+                </excludes>
             </resource>
 
             <resource>
                 <directory>src/main/webapp/</directory>
-                <excludes>
-                    <exclude>resources/node_modules/**</exclude>
-                </excludes>
             </resource>
         </resources>
     </build>
